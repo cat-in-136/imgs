@@ -3,12 +3,24 @@ import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {AngularFireStorage} from '@angular/fire/storage';
 import {HttpClient} from '@angular/common/http';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
-import {combineLatest, Subject} from 'rxjs';
+import {combineLatest} from 'rxjs';
 import {JobQueue} from '../job/job-queue';
 import {TitleService} from '../service/title.service';
 import * as JSZip from 'jszip';
 import * as FileSaver from 'file-saver';
 import {DecryptedImage} from '../model/decrypted-image';
+
+class UploadingFile {
+  encryptedBuffer: ArrayBuffer;
+
+  constructor(public readonly name: string, public readonly buffer: ArrayBuffer) {
+
+  }
+
+  toDecryptedImage(sanitizer: DomSanitizer): DecryptedImage {
+    return new DecryptedImage(this.name, this.buffer, sanitizer);
+  }
+}
 
 @Component({
   selector: 'app-album',
@@ -77,13 +89,13 @@ export class AlbumComponent implements OnInit {
 
   currentImageName: string;
 
-  static stringToBuffer(src): ArrayBufferLike {
-    return (new Uint16Array([].map.call(src, function (c) {
+  static stringToBuffer(src: string): ArrayBufferLike {
+    return (new Uint16Array([].map.call(src, function (c: string) {
       return c.charCodeAt(0);
     }))).buffer;
   }
 
-  static bufferToString(buf) {
+  static bufferToString(buf: ArrayBufferLike): string {
     return String.fromCharCode.apply('', new Uint16Array(buf));
   }
 
@@ -108,7 +120,7 @@ export class AlbumComponent implements OnInit {
   }
 
   @HostListener('window:keydown', ['$event'])
-  onKeydown($event) {
+  onKeydown($event: KeyboardEvent) {
     if (this.currentImageName != null) {
       const index = this.fileList.indexOf(this.currentImageName);
       if ($event.key === 'ArrowRight') {
@@ -407,18 +419,6 @@ export class AlbumComponent implements OnInit {
 
   gotoPhoto(image: DecryptedImage) {
     this.router.navigate([this.album_id, image.name], {fragment: 'k=' + this.key});
-  }
-}
-
-class UploadingFile {
-  encryptedBuffer: ArrayBuffer;
-
-  constructor(public readonly name: string, public readonly buffer: ArrayBuffer) {
-
-  }
-
-  toDecryptedImage(sanitizer: DomSanitizer): DecryptedImage {
-    return new DecryptedImage(this.name, this.buffer, sanitizer);
   }
 }
 

@@ -11,7 +11,7 @@ export class DecryptedImage {
   constructor(
     public readonly name: string,
     public readonly dec: ArrayBuffer,
-    private sanitizer: DomSanitizer
+    readonly sanitizer: DomSanitizer
   ) {
     const blob = new Blob([dec], {type: 'image/jpeg'});
     const dataURL = URL.createObjectURL(blob);

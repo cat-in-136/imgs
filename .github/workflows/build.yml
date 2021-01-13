@@ -28,5 +28,5 @@ jobs:
     - run: npm --prefix angular ci
 
     - run: npm --prefix angular run build --if-present
-    #- run: npm --present angular run lint
-    #- run: npm --present angular run test
+    - run: npm --prefix angular run lint
+    #- run: npm --prefix angular run test
